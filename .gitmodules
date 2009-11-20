@@ -1,0 +1,3 @@
+[submodule "phphaml"]
+	path = phphaml
+	url = git://github.com/dxw/phphaml.git
