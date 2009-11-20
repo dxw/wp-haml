@@ -1,0 +1,67 @@
+WP-HAML 1.0
+------------
+
+WP-HAML allows you to use HAML (powered by PHP-HAML) in your templates, instead 
+of embedded PHP -- which always turns into a horrible mess as soon as your
+application is more complicated than "Hello World".
+
+It's powered by PHP-HAML, which is a port of HAML, as developed for use with 
+Ruby on Rails. The official distribution is a few years old, and has some bugs,
+so we've forked it and put the source on github:
+
+   http://github.com/dxw/phphaml
+   
+WP-HAML should work seamlessly with themes that don't support it. When your 
+theme's templates are being loaded, WP-HAML will look for a file named 
+<template>.haml.php (eg: search.haml.php, comments.haml.php) and, if one is 
+found, will load and execute the template, bypassing Wordpress's normal
+template loader.
+
+If no .haml.php file is found, WP-HAML will return control to the Wordpress
+template loader, which will load the original template file.
+
+The upshot: You can leave WP-HAML enabled for themes which don't support it, and
+you can use it to implement bits of HAML in a theme that is otherwise normal. It
+should be pretty easy to port your theme to HAML in your spare time!
+
+
+HOW DOES IT WORK?
+-----------------
+
+1. Request comes in, and is passed to template loader
+2. Plugin intercepts reqest and checks to see if there's a matching haml 
+   template
+3. If there is, the compiled-templates folder is checked to see if it has 
+   already been compiled. If it has, it is executed immediately
+4. If it hasn't, the HAML is parsed, converted to embedded PHP which is saved
+   to the compiled-templates folder and executed
+   
+The compiled templates aren't static files: they're PHP scripts, so WP-HAML
+shouldn't intefere with any cacheing plugins that you may be using.
+
+
+VERY ANNOYING THING
+--------------------
+
+php-haml has no error checking or reporting at all. It will take whatever you
+give it, and compile it to an embedded PHP file, even if it's totally broken.
+Sometimes, if you give it something really left-field, you'll get an error 
+within the parser itself.
+
+This is obviously very bad. Suggestions for replacement parsers (or patches!) 
+would be most welcome.
+
+In practice, it's not *that* hard to work around. Create your theme with 
+WP_DEBUG set to true (in wp-config.php) and check the compiled template when
+you get a PHP error. It's usually fairly obvious what went wrong and how to
+fix it.
+
+
+FEEDBACK AND HELP
+-----------------
+
+First, check the website: http://github.com/dxw/wp-haml
+
+If you can't find what you need, get in touch. I can't guarantee to support any 
+of this, but pop me an email on harry@thedextrousweb.com, or visit us in 
+#dextrousweb on Freenode. We'll see what we can do.
