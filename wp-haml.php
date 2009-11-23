@@ -48,27 +48,60 @@ function wphaml_warning()
 }
 
 /*
- * Plugin logic
+ * Template handling
  */
 
 require_once  dirname(__FILE__) . '/phphaml/includes/haml/HamlParser.class.php';
  
-add_filter('template_include', 'wphaml_template_include');
+/**
+  * $template_layout is set by the template if it wishes to use a custom layout. 
+  *
+  * The loader compiles and executes the template, saves its output to $template_output,
+  * and then compiles and executes the layout. The layout calls yield() to include the
+  * content of the template.
+  */
 
+$template_layout = $template_output = '';
+  
+
+/**
+  * Intercepts template includes using our new filter and looks for a HAML alternative.
+  */
+  
+add_filter('template_include', 'wphaml_template_include');
 function wphaml_template_include($template)
 {
+   // Globalise the Wordpress environment
+   global $posts, $post, $wp_did_header, $wp_did_template_redirect, $wp_query, $wp_rewrite, $wpdb, $wp_version, $wp, $id, $comment, $user_ID;
+   
+   // Globalise the stuff we need
+   global $template_output, $template_layout;
+   
    // Is there a haml template?
    $haml_template = str_replace(".php", ".haml.php", $template);
-   
+      
    if(file_exists($haml_template))
    {
-      global $wpdb, $wp_query;
-
+      // Execute the template and save its output
       $parser = new HamlParser(TEMPLATEPATH, COMPILED_TEMPLATES);
       $parser->setFile($haml_template);
+
+      $template_output = $parser->render();
+            
+      if($template_layout == '')
+      {
+         $template_layout = TEMPLATEPATH . "/layout.haml.php";
+      }
+      
+      // Execute the layout and display everything
+      $parser = new HamlParser(TEMPLATEPATH, COMPILED_TEMPLATES);
+      $parser->setFile($template_layout);
+   
       echo $parser->render();
+      
       return null;
    }
+   
    return $template;
 }
 
