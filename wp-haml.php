@@ -53,8 +53,6 @@ function wphaml_warning()
 
 require_once  dirname(__FILE__) . '/phphaml/includes/haml/HamlParser.class.php';
  
-add_action('template_redirect', 'wphaml_template_redirect');
-
 function wphaml_parse_template($template)
 {
    global $wpdb, $wp_query;
@@ -64,81 +62,10 @@ function wphaml_parse_template($template)
 }
 
 
-function wphaml_template_redirect()
+add_action('template_include', 'wphaml_template_include');
+
+function wphaml_template_include($template)
 {
-   if(is_robots())
-   {
-      do_action('do_robots');   
-   }
-   else if ( is_feed() )
-   {
-      do_feed();
-   } 
-   else if(is_trackback())
-   {
-      $template = ABSPATH . 'wp-trackback.php';
-   }
-   else if(is_404())
-   {
-      $template = get_404_template();
-   }
-   else if(is_search())
-   {
-      $template = get_search_template();
-   }
-   else if(is_tax())
-   {
-      $template = get_taxonomy_template();
-   }
-   else if(is_home())
-   {
-      $template = get_home_template();
-   } 
-   else if(is_attachment() && $template = get_attachment_template())
-   {
-      remove_filter('the_content', 'prepend_attachment');   
-   } 
-   else if(is_single())
-   {
-      $template = get_single_template();
-   } 
-   else if(is_page())
-   {
-      $template = get_page_template();
-   }
-   else if(is_category())
-   {
-      $template = get_category_template();
-   }
-   else if(is_tag())
-   {
-      $template = get_tag_template();
-   }
-   else if(is_author())
-   {
-      $template = get_author_template();
-   }
-   else if(is_date())
-   {
-      $template = get_date_template();
-   }
-   else if(is_archive())
-   {
-      $template = get_archive_template();
-   }
-   else if(is_comments_popup())
-   {
-      $template = get_comments_popup_template();
-   }
-   else if(is_paged())
-   {
-      $template = get_paged_template();
-   }
-   else
-   {
-      $template = TEMPLATEPATH . "/index.php";
-   }
-   
    // Is there a haml template?
    $haml_template = str_replace(".php", ".haml.php", $template);
    
