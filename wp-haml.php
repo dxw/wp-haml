@@ -53,16 +53,7 @@ function wphaml_warning()
 
 require_once  dirname(__FILE__) . '/phphaml/includes/haml/HamlParser.class.php';
  
-function wphaml_parse_template($template)
-{
-   global $wpdb, $wp_query;
-
-   $parser = new HamlParser(TEMPLATEPATH, COMPILED_TEMPLATES);
-   echo $parser->setFile($template);
-}
-
-
-add_action('template_include', 'wphaml_template_include');
+add_filter('template_include', 'wphaml_template_include');
 
 function wphaml_template_include($template)
 {
@@ -71,11 +62,14 @@ function wphaml_template_include($template)
    
    if(file_exists($haml_template))
    {
-      wphaml_parse_template($haml_template);
-   
-      // Don't do Wordpress's template handling
-      die();
+      global $wpdb, $wp_query;
+
+      $parser = new HamlParser(TEMPLATEPATH, COMPILED_TEMPLATES);
+      $parser->setFile($haml_template);
+      echo $parser->render();
+      return null;
    }
+   return $template;
 }
 
 
