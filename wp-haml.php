@@ -106,4 +106,76 @@ function wphaml_template_include($template)
 }
 
 
+/*
+ * Create haml alternatives for the get_* functions
+ */
+
+function use_layout($name)
+{
+   global $template_layout;
+
+   $layout = TEMPLATEPATH . "/layout-$name.haml.php";
+   
+   if(!file_exists($layout))
+   {
+      trigger_error("The specified layout could not be found: <em>$layout</em>", E_USER_ERROR);
+      die();
+   }
+   
+   $template_layout = $layout;
+}
+
+function render_partial($name, $return = false)
+{
+   $partial_template = TEMPLATEPATH . "/partials/_$name.haml.php";
+      
+   if(!file_exists($partial_template))
+   {
+      trigger_error("The specified partial could not be found: <em>$partial_template</em>", E_USER_ERROR);
+      die();
+   }
+   
+   // Execute the template and save its output
+   $parser = new HamlParser(TEMPLATEPATH, COMPILED_TEMPLATES);
+   $parser->setFile($partial_template);
+
+   $partial_output = $parser->render();
+   
+   if($return)
+   {
+      return $partial_output;
+   }
+   
+   echo $partial_output;
+}
+
+function yield()
+{
+   global $template_output;
+   
+   if($template_output == '')
+   {
+      trigger_error("<tt>yield</tt> had no output to emit (\$template_output is empty). Did your template do anything?", E_USER_NOTICE);
+      die();
+   }
+   
+   echo $template_output;
+}
+
+
+/*
+ * Warn people not to use get_header and get_footer
+ */
+ 
+add_action('get_header', 'wphaml_headfoot_warnings');
+add_action('get_footer', 'wphaml_headfoot_warnings');
+add_action('get_sidebar', 'wphaml_headfoot_warnings');
+add_action('get_search_form', 'wphaml_headfoot_warnings');
+
+function wphaml_headfoot_warnings()
+{
+   trigger_error("Eek! Don't use get_header, get_footer, get_sidebar or get_search_form. You should use layouts and partials instead: <tt>use_layout</tt> and <tt>get_partial</tt>", E_USER_WARNING);
+}
+
+
 ?>
