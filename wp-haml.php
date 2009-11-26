@@ -51,6 +51,7 @@ function wphaml_warning()
  * Template handling
  */
 
+require_once dirname(__FILE__) . "/helpers.php";
 require_once  dirname(__FILE__) . '/phphaml/includes/haml/HamlParser.class.php';
  
 /**
@@ -78,8 +79,15 @@ function wphaml_template_include($template)
    global $template_output, $template_layout;
    
    // Is there a haml template?
-   $haml_template = str_replace(".php", ".haml.php", $template);
-      
+   if(substr($template, -9) == '.haml.php')
+   {
+      $haml_template = $template;
+   }
+   else
+   {
+      $haml_template = str_replace(".php", ".haml.php", $template);
+   }
+   
    if(file_exists($haml_template))
    {
       // Execute the template and save its output
